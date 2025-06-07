@@ -123,10 +123,10 @@ def register_attendee(
     # print(response_from_kc)
     
     try:
-        response_from_kc = create_keycloak_user(attendee.name, attendee.email, "defaultPassword123")
-        print(response_from_kc)
+        create_keycloak_user(attendee.name, attendee.email, "defaultPassword123")
     except KeycloakError as e:
         detail = e.args[0] if isinstance(e.args[0], dict) and 'errorMessage' in e.args[0] else str(e)
+        print(detail)
         # raise HTTPException(status_code=500, detail=detail)
         #  we will keep pasthrough
 

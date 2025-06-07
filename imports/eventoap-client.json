@@ -1,0 +1,104 @@
+{
+  "clientId": "eventoap-client",
+  "name": "eventoap-client",
+  "description": "",
+  "rootUrl": "http://localhost:8000",
+  "adminUrl": "http://localhost:8000",
+  "baseUrl": "",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "Gd2jS7BQPnXM0iwfKjkjdbKsgj2ePexO",
+  "redirectUris": [
+    "http://localhost:8080/*"
+  ],
+  "webOrigins": [
+    "http://localhost:8080"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": true,
+  "serviceAccountsEnabled": true,
+  "authorizationServicesEnabled": true,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "oidc.ciba.grant.enabled": "false",
+    "client.secret.creation.time": "1749218071",
+    "backchannel.logout.session.required": "true",
+    "login_theme": "keycloak",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "display.on.consent.screen": "false",
+    "backchannel.logout.revoke.offline.tokens": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "Client Host",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "clientHost",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "clientHost",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "name": "Client ID",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "client_id",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "client_id",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "name": "Client IP Address",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "clientAddress",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "clientAddress",
+        "jsonType.label": "String"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "profile",
+    "roles",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}
