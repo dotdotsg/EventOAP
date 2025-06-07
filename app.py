@@ -7,10 +7,54 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from model.Event import EventDB, AttendeeDB
 from db.database import SessionLocal, Base, engine
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi_keycloak import FastAPIKeycloak, OIDCUser
+
 
 Base.metadata.create_all(bind=engine)
 
+keycloak = FastAPIKeycloak(
+server_url="http://localhost:8080/",
+    client_id="eventoap-client",                    # the client for your app's user login
+    client_secret="Gd2jS7BQPnXM0iwfKjkjdbKsgj2ePexO", # confidential app client secret
+    admin_client_id="eventoap-client",
+    admin_client_secret="Gd2jS7BQPnXM0iwfKjkjdbKsgj2ePexO",
+    realm="EventOAP",
+    callback_uri="http://localhost:8000/callback"
+)
+def create_keycloak_user(username, email, password):
+    user = {
+        "email": email,
+        "username": username,
+        "enabled": True,
+        "credentials": [{
+            "value": password,
+            "type": "password",
+            "temporary": False
+        }]
+    }
+    return keycloak.create_user(first_name="Sumeet",last_name="Gupta",username=username,email=email,password="defaultPassword123")
+
+
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+keycloak.add_swagger_config(app)
+# app.include_router(keycloak.get_login_router(), "/auth")
+
+@app.get("/whoami")
+async def whoami(user=Depends(keycloak.get_current_user())):
+    return user
+
+@app.get("/secure-data", dependencies=[Depends(keycloak.get_current_user)])
+def secure_data():
+    return {"data": "only accessible with token"}
+
 
 class EventCreate(BaseModel):
     name: str
@@ -49,12 +93,25 @@ def list_upcoming_events(db: Session = Depends(get_db)):
     return [Event(id=e.id, name=e.name, location=e.location, start_time=e.start_time, end_time=e.end_time, max_capacity=e.max_capacity) for e in db_events]
 
 @app.post("/events/{event_id}/register")
-def register_attendee(event_id: str, attendee: Attendee, db: Session = Depends(get_db)):
+def register_attendee(
+    event_id: str,
+    attendee: Attendee,
+    user: OIDCUser = Depends(keycloak.get_current_user()),
+    db: Session = Depends(get_db)
+):
+    # if not user.email_verified:
+    #     raise HTTPException(status_code=403, detail="Email not verified")
+
+    response_from_kc = create_keycloak_user(attendee.name, attendee.email, "defaultPassword123")
+    print(response_from_kc)
+    
     event = db.query(EventDB).filter_by(id=event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
 
-    existing = db.query(AttendeeDB).filter(and_(AttendeeDB.email == attendee.email, AttendeeDB.event_id == event_id)).first()
+    existing = db.query(AttendeeDB).filter(
+        and_(AttendeeDB.email == attendee.email, AttendeeDB.event_id == event_id)
+    ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Attendee already registered")
 
